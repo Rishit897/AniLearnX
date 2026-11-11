@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AniLearn.X — Text-to-Anime Educational Converter</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#090d16;--bg2:#0d1220;--bg3:#111827;
+  --cyan:#00f5ff;--pink:#ff2d78;--purple:#a855f7;--yellow:#ffd700;
+  --text:#e2e8f0;--muted:#64748b;--border:#1e2d45;
+  --glow-c:0 0 8px #00f5ff,0 0 20px #00f5ff44;
+  --glow-p:0 0 8px #ff2d78,0 0 20px #ff2d7844;
+  --radius:12px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(9,13,22,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.35rem;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:.68rem;font-weight:400;color:var(--muted);letter-spacing:.14em;display:block;-webkit-text-fill-color:var(--muted)}
+.nav-right{display:flex;align-items:center;gap:.75rem}
+.nav-badge{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-size:.68rem;font-weight:700;padding:.25rem .7rem;border-radius:20px;letter-spacing:.08em}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e}
+
+/* HERO */
+.hero{text-align:center;padding:3rem 1.5rem 2rem;background:radial-gradient(ellipse 80% 50% at 50% 0%,#00f5ff0d,transparent)}
+.hero h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;line-height:1.15;background:linear-gradient(135deg,var(--cyan) 0%,var(--purple) 50%,var(--pink) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.75rem}
+.hero p{color:var(--muted);font-size:clamp(.88rem,2vw,1.05rem);max-width:580px;margin:0 auto 1.5rem}
+.hero-tags{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.tag{background:var(--bg3);border:1px solid var(--border);color:var(--cyan);font-size:.7rem;font-weight:600;padding:.28rem .75rem;border-radius:20px;letter-spacing:.07em}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;padding:0 1.5rem 1.5rem;max-width:1400px;margin:0 auto}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem;text-align:center;transition:border-color .2s}
+.stat-card:hover{border-color:var(--cyan)}
+.stat-val{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:.67rem;color:var(--muted);margin-top:.2rem;letter-spacing:.06em;text-transform:uppercase}
+
+/* NEON DIVIDER */
+.neon-divider{height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--purple),var(--pink),transparent);margin:0 1.5rem .5rem;opacity:.35}
+
+/* MAIN GRID */
+.main{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;padding:1rem 1.5rem;max-width:1400px;margin:0 auto}
+
+/* PANELS */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.panel-header{display:flex;align-items:center;gap:.6rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--border);background:var(--bg3)}
+.panel-icon{font-size:1rem}
+.panel-title{font-size:.88rem;font-weight:700;letter-spacing:.05em}
+.panel-badge{margin-left:auto;font-size:.63rem;font-weight:700;padding:.18rem .55rem;border-radius:10px;letter-spacing:.07em}
+.bc{background:#00f5ff1a;color:var(--cyan);border:1px solid #00f5ff33}
+.bp{background:#ff2d781a;color:var(--pink);border:1px solid #ff2d7833}
+.bv{background:#a855f71a;color:var(--purple);border:1px solid #a855f733}
+.by{background:#ffd7001a;color:var(--yellow);border:1px solid #ffd70033}
+.panel-body{padding:1.1rem}
+
+/* TEXTAREA */
+textarea{width:100%;min-height:160px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.88rem;line-height:1.65;padding:.9rem;resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+textarea:focus{border-color:var(--cyan);box-shadow:var(--glow-c)}
+textarea::placeholder{color:var(--muted)}
+.input-footer{display:flex;justify-content:space-between;align-items:center;margin-top:.4rem}
+.char-count{font-size:.68rem;color:var(--muted)}
+.sample-btn{font-size:.68rem;color:var(--cyan);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+/* CONTROLS */
+.controls{display:flex;flex-direction:column;gap:.85rem;margin-top:.9rem}
+.ctrl-row{display:flex;gap:.7rem;flex-wrap:wrap}
+.sel-wrap{flex:1;min-width:110px}
+.sel-wrap label,.slider-label-text{display:block;font-size:.7rem;color:var(--muted);margin-bottom:.32rem;letter-spacing:.06em;font-weight:600;text-transform:uppercase}
+select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.83rem;padding:.52rem .8rem;outline:none;cursor:pointer;transition:border-color .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2364748b' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:1.8rem}
+select:focus{border-color:var(--cyan)}
+
+/* SLIDERS */
+.slider-row{display:flex;align-items:center;gap:.7rem}
+.slider-label-text{margin:0;width:85px;flex-shrink:0}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--cyan);border-radius:50%;box-shadow:var(--glow-c);cursor:pointer}
+.sval{font-size:.72rem;color:var(--cyan);width:28px;text-align:right;font-weight:700}
+
+/* CHIPS */
+.chip-group{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.2rem}
+.chip{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:.7rem;font-weight:600;padding:.28rem .7rem;border-radius:20px;cursor:pointer;transition:all .2s;letter-spacing:.05em;user-select:none}
+.chip.on{background:#00f5ff14;border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 6px #00f5ff33}
+.chip:hover:not(.on){border-color:var(--muted);color:var(--text)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;font-size:.83rem;font-weight:700;letter-spacing:.06em;padding:.68rem 1.3rem;border-radius:8px;border:none;cursor:pointer;transition:all .2s;text-transform:uppercase;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;box-shadow:0 0 18px #00f5ff2a}
+.btn-primary:hover{box-shadow:0 0 28px #00f5ff55;transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-sec{background:transparent;border:1px solid var(--pink);color:var(--pink)}
+.btn-sec:hover{background:#ff2d780e;box-shadow:var(--glow-p)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--muted);color:var(--text)}
+.btn-row{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.9rem}
+
+/* PROGRESS */
+.prog-wrap{margin-top:.9rem;display:none}
+.prog-wrap.show{display:block}
+.prog-top{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-bottom:.35rem}
+.prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:2px;transition:width .25s ease;box-shadow:0 0 6px var(--cyan)}
+
+/* OUTPUT */
+.output-screen{background:var(--bg);border:1px solid var(--border);border-radius:8px;min-height:200px;padding:1.1rem;position:relative;overflow:hidden}
+.output-screen::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#00f5ff04,#a855f704,#ff2d7804);pointer-events:none}
+.out-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;gap:.7rem;color:var(--muted)}
+.out-placeholder .big{font-size:2.8rem;opacity:.25}
+.out-placeholder p{font-size:.82rem;text-align:center;max-width:200px}
+.out-content{display:none;flex-direction:column;gap:.9rem}
+.out-content.show{display:flex}
+
+/* SCENE CARD */
+.scene{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.scene-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .9rem;background:var(--bg3);border-bottom:1px solid var(--border)}
+.scene-num{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-size:.62rem;font-weight:800;padding:.12rem .45rem;border-radius:4px}
+.scene-ttl{font-size:.78rem;font-weight:600}
+.scene-body{padding:.85rem .9rem;font-size:.83rem;line-height:1.75}
+.cn{color:var(--cyan);font-weight:700}
+.act{color:var(--purple);font-style:italic}
+.dlg{color:var(--yellow)}
+.scene-tags{display:flex;gap:.4rem;flex-wrap:wrap;padding:.4rem .9rem .7rem}
+.stag{font-size:.62rem;font-weight:600;padding:.15rem .5rem;border-radius:4px;background:var(--bg);border:1px solid var(--border);color:var(--muted)}
+
+/* PRESETS */
+.presets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-top:.5rem}
+.preset{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.7rem .5rem;cursor:pointer;transition:all .2s;text-align:center}
+.preset:hover,.preset.on{border-color:var(--cyan);background:#00f5ff07}
+.preset.on{box-shadow:0 0 10px #00f5ff22}
+.preset-ico{font-size:1.3rem;margin-bottom:.25rem}
+.preset-name{font-size:.7rem;font-weight:700}
+.preset-desc{font-size:.6rem;color:var(--muted);margin-top:.1rem}
+
+/* HISTORY */
+.history{display:flex;flex-direction:column;gap:.55rem}
+.h-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;display:flex;align-items:center;gap:.7rem;cursor:pointer;transition:border-color .2s}
+.h-item:hover{border-color:var(--cyan)}
+.h-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:var(--glow-c);flex-shrink:0}
+.h-text{flex:1;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h-time{font-size:.65rem;color:var(--muted);flex-shrink:0}
+
+/* BOTTOM GRID */
+.bottom{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;padding:0 1.5rem 1.5rem;max-width:1400px;margin:0 auto}
+
+/* FOOTER */
+footer{text-align:center;padding:1.25rem;border-top:1px solid var(--border);color:var(--muted);font-size:.72rem;background:var(--bg2)}
+footer span{color:var(--cyan)}
+
+/* SSO OVERLAY */
+#ssoOverlay{position:fixed;inset:0;z-index:999;background:rgba(5,8,14,.88);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;padding:1rem;transition:opacity .35s ease}
+#ssoOverlay.hide{opacity:0;pointer-events:none}
+.sso-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 0 60px #00f5ff0d,0 30px 60px rgba(0,0,0,.6);animation:cardIn .4s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes cardIn{from{transform:translateY(28px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.sso-top{padding:2rem 2rem 1.5rem;text-align:center;border-bottom:1px solid var(--border)}
+.sso-logo-wrap{display:inline-flex;align-items:center;gap:.55rem;margin-bottom:1.25rem}
+.sso-logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:var(--glow-c)}
+.sso-logo-name{font-size:1.15rem;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sso-headline{font-size:1.1rem;font-weight:700;margin-bottom:.4rem}
+.sso-sub{font-size:.8rem;color:var(--muted);line-height:1.55}
+.sso-body{padding:1.5rem 2rem}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:.75rem;background:#fff;color:#3c4043;font-size:.9rem;font-weight:600;padding:.78rem 1.2rem;border-radius:10px;border:none;cursor:pointer;transition:box-shadow .2s,transform .15s;font-family:inherit}
+.google-btn:hover{box-shadow:0 4px 20px rgba(255,255,255,.18);transform:translateY(-1px)}
+.google-btn:active{transform:translateY(0)}
+.sso-divider{display:flex;align-items:center;gap:.75rem;margin:1.1rem 0;color:var(--muted);font-size:.72rem}
+.sso-divider::before,.sso-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.sso-footer-note{font-size:.68rem;color:var(--muted);text-align:center;line-height:1.6}
+.sso-footer-note a{color:var(--cyan);text-decoration:none}
+.sso-toggle-link{display:block;text-align:center;margin-top:.9rem;font-size:.75rem;color:var(--muted)}
+.sso-toggle-link button{background:none;border:none;color:var(--cyan);cursor:pointer;font-size:.75rem;font-family:inherit;text-decoration:underline;text-underline-offset:2px;padding:0}
+
+/* CREATE ACCOUNT FORM */
+.create-view{display:none;flex-direction:column}
+.create-view.show{display:flex}
+.create-form{padding:1.5rem 2rem}
+.create-field{margin-bottom:.85rem}
+.create-field label{display:block;font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.35rem}
+.create-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:.88rem;padding:.65rem .9rem;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+.create-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #00f5ff18}
+.create-input.err{border-color:#ef4444;box-shadow:0 0 0 2px #ef444420}
+.create-inline-err{font-size:.7rem;color:#ef4444;font-weight:600;margin-top:.3rem;display:none}
+.create-inline-err.show{display:block}
+.btn-register{width:100%;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;border:none;border-radius:9px;padding:.8rem 1rem;font-size:.88rem;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.05em;margin-top:.25rem;transition:all .2s;box-shadow:0 0 18px #00f5ff22}
+.btn-register:hover{box-shadow:0 0 28px #00f5ff55;transform:translateY(-1px)}
+.btn-register:active{transform:translateY(0)}
+.create-success{display:none;margin:.75rem 2rem 1.25rem;background:#052018;border:1px solid #22c55e44;border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:#4ade80;line-height:1.55;text-align:center}
+.create-success.show{display:block}
+.create-back{display:block;text-align:center;font-size:.72rem;color:var(--muted);margin-bottom:1rem}
+.create-back button{background:none;border:none;color:var(--cyan);cursor:pointer;font-size:.72rem;font-family:inherit;text-decoration:underline;text-underline-offset:2px;padding:0}
+.consent-view{display:none;flex-direction:column}
+.consent-view.show{display:flex}
+.consent-header{padding:1.25rem 1.5rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
+.consent-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#34a853);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;box-shadow:0 0 12px #4285f444}
+.consent-user{font-size:.8rem;font-weight:600}
+.consent-email{font-size:.7rem;color:var(--muted)}
+.consent-body{padding:1.25rem 1.5rem}
+.consent-app-row{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;padding:.75rem;background:var(--bg3);border-radius:10px;border:1px solid var(--border)}
+.consent-app-ico{font-size:1.2rem}
+.consent-app-name{font-size:.8rem;font-weight:700;line-height:1.2}
+.consent-app-domain{font-size:.67rem;color:var(--muted)}
+.consent-arrow{color:var(--muted);font-size:.85rem;flex-shrink:0}
+.consent-gcf-ico{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#4285f4,#34a853);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.consent-text{font-size:.82rem;line-height:1.68;color:var(--text);margin-bottom:1rem}
+.consent-text strong{color:var(--purple)}
+.consent-perms{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem}
+.perm-item{display:flex;align-items:flex-start;gap:.55rem;font-size:.76rem;color:var(--muted);line-height:1.45}
+.perm-ico{color:var(--purple);flex-shrink:0;margin-top:.05rem}
+.consent-btns{display:flex;gap:.75rem}
+.btn-allow{flex:1;background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;border:none;border-radius:9px;padding:.78rem 1rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;letter-spacing:.04em;box-shadow:0 0 18px #a855f733}
+.btn-allow:hover{box-shadow:0 0 28px #a855f766;transform:translateY(-1px)}
+.btn-allow:active{transform:translateY(0)}
+.btn-cancel{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:.78rem 1rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-cancel:hover{border-color:var(--muted);color:var(--text)}
+.consent-note{font-size:.67rem;color:var(--muted);text-align:center;margin-top:.9rem;line-height:1.55}
+.consent-note a{color:var(--cyan);text-decoration:none}
+
+/* ACCOUNT PICKER */
+.account-picker{display:none;flex-direction:column}
+.account-picker.show{display:flex}
+.ap-header{padding:1.1rem 1.5rem .85rem;border-bottom:1px solid var(--border)}
+.ap-g-logo{display:flex;align-items:center;gap:.55rem;margin-bottom:.7rem}
+.ap-g-wordmark{font-size:1rem;font-weight:700;letter-spacing:-.01em;color:#e8eaed}
+.ap-g-wordmark span:nth-child(1){color:#4285f4}
+.ap-g-wordmark span:nth-child(2){color:#ea4335}
+.ap-g-wordmark span:nth-child(3){color:#fbbc05}
+.ap-g-wordmark span:nth-child(4){color:#4285f4}
+.ap-g-wordmark span:nth-child(5){color:#34a853}
+.ap-g-wordmark span:nth-child(6){color:#ea4335}
+.ap-headline{font-size:.82rem;color:#9aa0a6;line-height:1.45}
+.ap-accounts{display:flex;flex-direction:column;gap:0}
+.ap-account{display:flex;align-items:center;gap:.85rem;padding:.9rem 1.5rem;cursor:pointer;transition:background .18s;border:none;background:none;width:100%;text-align:left}
+.ap-account:hover{background:rgba(255,255,255,.06)}
+.ap-account.sliding{animation:slideAway .38s cubic-bezier(.4,0,1,1) forwards}
+@keyframes slideAway{0%{transform:translateX(0);opacity:1}100%{transform:translateX(-40px);opacity:0}}
+.ap-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:0}
+.ap-avatar.av1{background:linear-gradient(135deg,#4285f4,#0d47a1)}
+.ap-avatar.av2{background:linear-gradient(135deg,#34a853,#1b5e20)}
+.ap-info{flex:1;min-width:0}
+.ap-name{font-size:.85rem;font-weight:600;color:#e8eaed;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap-email{font-size:.72rem;color:#9aa0a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap-arrow{color:#9aa0a6;font-size:.8rem;flex-shrink:0}
+.ap-divider{height:1px;background:var(--border);margin:0 1.5rem}
+.ap-footer{padding:.75rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
+.ap-add-btn{font-size:.75rem;color:#8ab4f8;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:.35rem;padding:.3rem 0}
+.ap-add-btn:hover{text-decoration:underline}
+.ap-privacy{font-size:.65rem;color:#9aa0a6}
+.ap-privacy a{color:#8ab4f8;text-decoration:none}
+
+@media(max-width:600px){
+  .sso-card{border-radius:14px;max-width:100%}
+  .sso-top{padding:1.5rem 1.25rem 1.1rem}
+  .sso-body{padding:1.1rem 1.25rem}
+  .consent-header{padding:1rem 1.1rem .85rem}
+  .consent-body{padding:1rem 1.1rem}
+  .consent-btns{flex-direction:column}
+  .btn-allow,.btn-cancel{width:100%}
+}
+
+/* ENGINE WORKSPACE */
+.engine-section{padding:1.5rem;max-width:1400px;margin:0 auto}
+.engine-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.engine-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.engine-wrap{display:flex;gap:1.25rem;align-items:stretch}
+.engine-chat{flex:0 0 40%;min-width:0;display:flex;flex-direction:column}
+.engine-video{flex:0 0 60%;min-width:0}
+
+/* CHAT PANEL */
+.chat-log{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:.75rem;scroll-behavior:smooth}
+.chat-log::-webkit-scrollbar{width:4px}
+.chat-log::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.bubble-wrap{display:flex;flex-direction:column;gap:.2rem}
+.bubble-wrap.user{align-items:flex-end}
+.bubble-wrap.gemini{align-items:flex-start}
+.bubble{max-width:88%;padding:.65rem .9rem;border-radius:14px;font-size:.82rem;line-height:1.65;word-break:break-word}
+.bubble.user{background:#1e2d45;color:var(--text);border-bottom-right-radius:4px}
+.bubble.gemini{background:#052018;border:1px solid #06b6d422;color:#6ee7b7;border-bottom-left-radius:4px;box-shadow:0 0 12px #06b6d410}
+.bubble-meta{font-size:.62rem;color:var(--muted);padding:0 .3rem}
+.gemini-typing{display:flex;align-items:center;gap:.35rem;padding:.5rem .9rem;background:#052018;border:1px solid #06b6d422;border-radius:14px;border-bottom-left-radius:4px;width:fit-content}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:#06b6d4;animation:typingBounce 1.2s infinite ease-in-out}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+
+/* CHAT INPUT */
+.chat-input-row{display:flex;gap:.55rem;margin-top:.75rem}
+.chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.83rem;padding:.6rem .85rem;outline:none;font-family:inherit;transition:border-color .2s}
+.chat-input:focus{border-color:#06b6d4;box-shadow:0 0 0 2px #06b6d418}
+.chat-input::placeholder{color:var(--muted)}
+.chat-send{background:#06b6d4;border:none;border-radius:8px;color:#000;font-size:.8rem;font-weight:700;padding:.6rem .95rem;cursor:pointer;transition:all .2s;flex-shrink:0}
+.chat-send:hover{background:#22d3ee;box-shadow:0 0 14px #06b6d455}
+
+/* ACTION BUTTONS BELOW CHAT */
+.chat-actions{display:flex;gap:.75rem;margin-top:.75rem}
+.btn-anime-video{flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.78rem 1rem;border-radius:10px;border:2px solid #06b6d4;background:#06b6d408;color:#06b6d4;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;position:relative;overflow:hidden;transition:background .2s,transform .15s;animation:tealPulse 2.4s ease-in-out infinite}
+@keyframes tealPulse{0%,100%{box-shadow:0 0 8px #06b6d433,0 0 0 0 #06b6d422}60%{box-shadow:0 0 18px #06b6d466,0 0 14px 4px #06b6d418}}
+.btn-anime-video:hover{background:#06b6d418;transform:translateY(-1px);animation:none;box-shadow:0 0 24px #06b6d455}
+.btn-anime-video:active{transform:translateY(0)}
+.btn-ask-more{flex:1;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.78rem 1rem;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-ask-more:hover{border-color:var(--purple);color:var(--purple);background:#a855f70a;box-shadow:0 0 12px #a855f722}
+
+/* VIDEO CANVAS */
+.video-canvas{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+.video-canvas-inner{width:100%;height:100%;position:relative;background:linear-gradient(135deg,#050d1a,#0a1628,#050d1a)}
+.vc-grid{position:absolute;inset:0;background-image:linear-gradient(#06b6d408 1px,transparent 1px),linear-gradient(90deg,#06b6d408 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+.vc-scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:1.5rem}
+.vc-placeholder{display:flex;flex-direction:column;align-items:center;gap:.6rem;color:var(--muted)}
+.vc-placeholder .vc-icon{font-size:3rem;opacity:.2;animation:vcFloat 3s ease-in-out infinite}
+@keyframes vcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.vc-placeholder p{font-size:.8rem;text-align:center;max-width:200px;opacity:.5}
+.vc-active{display:none;flex-direction:column;align-items:center;width:100%;gap:.6rem}
+.vc-active.show{display:flex}
+.vc-frame{width:90%;max-width:320px;background:var(--bg2);border:1px solid #06b6d433;border-radius:10px;overflow:hidden;box-shadow:0 0 30px #06b6d420}
+.vc-frame-header{background:linear-gradient(90deg,#06b6d422,#a855f722);padding:.5rem .85rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid #06b6d422}
+.vc-rec{width:8px;height:8px;border-radius:50%;background:#ff2d78;box-shadow:0 0 6px #ff2d78;animation:recBlink 1s step-end infinite}
+@keyframes recBlink{0%,100%{opacity:1}50%{opacity:.2}}
+.vc-frame-title{font-size:.68rem;font-weight:700;color:#06b6d4;letter-spacing:.08em}
+.vc-frame-body{padding:.85rem;font-size:.78rem;line-height:1.7;color:var(--text)}
+.vc-frame-body .vc-cn{color:#06b6d4;font-weight:700}
+.vc-frame-body .vc-act{color:var(--purple);font-style:italic}
+.vc-frame-body .vc-dlg{color:var(--yellow)}
+.vc-timeline{display:flex;gap:.4rem;align-items:center;width:90%;max-width:320px}
+.vc-tl-bar{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.vc-tl-fill{height:100%;background:linear-gradient(90deg,#06b6d4,var(--purple));border-radius:2px;animation:tlPlay 4s linear infinite}
+@keyframes tlPlay{from{width:0%}to{width:100%}}
+.vc-tl-time{font-size:.65rem;color:var(--muted);flex-shrink:0}
+.vc-controls{display:flex;gap:.5rem}
+.vc-ctrl-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.75rem;padding:.3rem .65rem;cursor:pointer;transition:all .2s}
+.vc-ctrl-btn:hover{border-color:#06b6d4;color:#06b6d4}
+.vc-status{position:absolute;top:.75rem;right:.75rem;display:flex;align-items:center;gap:.4rem;background:rgba(9,13,22,.8);border:1px solid var(--border);border-radius:20px;padding:.25rem .65rem;font-size:.65rem;color:var(--muted)}
+.vc-status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+.vc-status-dot.live{background:#06b6d4;box-shadow:0 0 6px #06b6d4;animation:recBlink 1.5s ease-in-out infinite}
+
+/* CONTROL PANEL */
+.ctrl-panel{padding:0 1.5rem 1.5rem;max-width:1400px;margin:0 auto}
+.ctrl-panel-inner{display:flex;gap:1.25rem}
+.ctrl-block{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.ctrl-block-header{display:flex;align-items:center;gap:.6rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--border);background:var(--bg3)}
+.ctrl-block-title{font-size:.88rem;font-weight:700;letter-spacing:.05em}
+
+/* AUDIO TILES */
+.audio-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;padding:1.1rem}
+.audio-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.9rem .5rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all .22s;user-select:none}
+.audio-tile:hover{border-color:var(--cyan);background:#00f5ff07}
+.audio-tile.selected{border-color:var(--cyan);background:#00f5ff0f;box-shadow:0 0 14px #00f5ff28}
+.audio-tile .at-flag{font-size:1.5rem}
+.audio-tile .at-label{font-size:.72rem;font-weight:700;letter-spacing:.05em;color:var(--text)}
+.audio-tile.selected .at-label{color:var(--cyan)}
+.audio-tile .at-check{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.55rem;transition:all .2s}
+.audio-tile.selected .at-check{background:var(--cyan);border-color:var(--cyan);color:#000;box-shadow:var(--glow-c)}
+.custom-lang-wrap{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;padding:0 1.1rem}
+.custom-lang-wrap.open{max-height:90px;opacity:1;padding:0 1.1rem .9rem}
+.lang-input-field{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;padding:.62rem .9rem;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+.lang-input-field:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #00f5ff18}
+.lang-input-field.error{border-color:#ef4444 !important;box-shadow:0 0 0 2px #ef444428,0 0 12px #ef444433 !important;animation:flashRed .35s ease}
+@keyframes flashRed{0%,100%{border-color:#ef4444}50%{border-color:#ff8080}}
+.lang-error-msg{display:none;font-size:.72rem;font-weight:700;color:#ef4444;margin-top:.4rem;padding:0 .1rem}
+.lang-error-msg.show{display:block}
+
+/* SUBTITLE TOGGLE */
+.sub-body{padding:1.1rem}
+.sub-toggle-row{display:flex;align-items:center;gap:1rem;margin-bottom:.9rem}
+.sub-toggle-label{font-size:.82rem;font-weight:600;color:var(--text);flex:1}
+.toggle-track{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:30px;padding:3px;gap:3px;cursor:pointer;transition:border-color .2s}
+.toggle-track.on{border-color:#06b6d4}
+.toggle-opt{padding:.32rem .85rem;border-radius:24px;font-size:.75rem;font-weight:700;letter-spacing:.06em;transition:all .22s;color:var(--muted)}
+.toggle-opt.active-on{background:#06b6d4;color:#000;box-shadow:0 0 10px #06b6d455}
+.toggle-opt.active-off{background:var(--bg3);color:var(--text)}
+.sub-lang-wrap{overflow:hidden;max-height:0;opacity:0;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .3s}
+.sub-lang-wrap.open{max-height:110px;opacity:1}
+.sub-lang-hint{font-size:.7rem;color:var(--muted);margin-bottom:.45rem}
+.sub-lang-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.sub-lang-tag{background:#06b6d418;border:1px solid #06b6d433;color:#06b6d4;font-size:.68rem;font-weight:600;padding:.2rem .6rem;border-radius:20px;display:flex;align-items:center;gap:.3rem}
+.sub-lang-tag button{background:none;border:none;color:#06b6d4;cursor:pointer;font-size:.75rem;line-height:1;padding:0}
+
+/* TELEPORTATION MATRIX */
+#teleMatrix{position:fixed;inset:0;z-index:9999;background:#06040f;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .45s ease}
+#teleMatrix.active{opacity:1;pointer-events:all}
+.tm-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,#1a0a3a,#06040f);pointer-events:none}
+.tm-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.tm-star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:starTwinkle var(--d,3s) var(--delay,0s) infinite ease-in-out}
+@keyframes starTwinkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.8;transform:scale(1.4)}}
+
+/* TITLE */
+.tm-title{font-size:clamp(.85rem,2.5vw,1.15rem);font-weight:900;letter-spacing:.28em;text-transform:uppercase;color:#e0d4ff;text-align:center;margin-bottom:2.5rem;position:relative;z-index:1;text-shadow:0 0 20px #a855f788}
+.tm-title span{color:#06b6d4;text-shadow:0 0 14px #06b6d4}
+
+/* PORTAL RING */
+.tm-portal-wrap{position:relative;width:clamp(180px,30vw,260px);height:clamp(180px,30vw,260px);margin-bottom:2.5rem;z-index:1;flex-shrink:0}
+.tm-ring{position:absolute;inset:0;border-radius:50%;animation:ringRotate 2.8s linear infinite}
+.tm-ring-1{border:3px solid transparent;border-top-color:#a855f7;border-right-color:#7c3aed;box-shadow:0 0 18px #a855f766,inset 0 0 18px #a855f722}
+.tm-ring-2{inset:12px;border:2px solid transparent;border-bottom-color:#06b6d4;border-left-color:#0891b2;animation-duration:1.9s;animation-direction:reverse;box-shadow:0 0 14px #06b6d455,inset 0 0 14px #06b6d418}
+.tm-ring-3{inset:24px;border:2px solid transparent;border-top-color:#c084fc;border-right-color:#06b6d4;animation-duration:3.5s;box-shadow:0 0 10px #c084fc44}
+@keyframes ringRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.tm-core{position:absolute;inset:36px;border-radius:50%;background:radial-gradient(circle,#1a0a3a 30%,#2d1060 60%,#06040f 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px #a855f744,inset 0 0 20px #06b6d422}
+.tm-core-icon{font-size:clamp(1.6rem,4vw,2.2rem);animation:corePulse 1.8s ease-in-out infinite}
+@keyframes corePulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.15);filter:brightness(1.4)}}
+
+/* ENERGY BEAMS */
+.tm-beams{position:absolute;inset:-20px;border-radius:50%;pointer-events:none}
+.tm-beam{position:absolute;top:50%;left:50%;width:50%;height:2px;transform-origin:0 50%;border-radius:0 2px 2px 0;animation:beamFade 2s ease-in-out infinite}
+.tm-beam:nth-child(1){background:linear-gradient(90deg,transparent,#a855f7);transform:rotate(0deg);animation-delay:0s}
+.tm-beam:nth-child(2){background:linear-gradient(90deg,transparent,#06b6d4);transform:rotate(72deg);animation-delay:.4s}
+.tm-beam:nth-child(3){background:linear-gradient(90deg,transparent,#c084fc);transform:rotate(144deg);animation-delay:.8s}
+.tm-beam:nth-child(4){background:linear-gradient(90deg,transparent,#06b6d4);transform:rotate(216deg);animation-delay:1.2s}
+.tm-beam:nth-child(5){background:linear-gradient(90deg,transparent,#a855f7);transform:rotate(288deg);animation-delay:1.6s}
+@keyframes beamFade{0%,100%{opacity:.2;transform:rotate(var(--r,0deg)) scaleX(.6)}50%{opacity:1;transform:rotate(var(--r,0deg)) scaleX(1.1)}}
+
+/* CONSOLE LOG */
+.tm-console{width:100%;max-width:520px;background:rgba(6,4,15,.8);border:1px solid #a855f733;border-radius:10px;padding:.85rem 1rem;position:relative;z-index:1;overflow:hidden}
+.tm-console-bar{display:flex;align-items:center;gap:.5rem;margin-bottom:.65rem;padding-bottom:.55rem;border-bottom:1px solid #a855f722}
+.tm-console-dot{width:8px;height:8px;border-radius:50%}
+.tm-console-title{font-size:.65rem;font-weight:700;letter-spacing:.12em;color:#a855f7}
+.tm-log-lines{display:flex;flex-direction:column;gap:.35rem;min-height:88px}
+.tm-log-line{font-size:.75rem;font-family:'Courier New',monospace;line-height:1.5;opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease}
+.tm-log-line.show{opacity:1;transform:translateY(0)}
+.tm-log-line .log-prefix{color:#06b6d4}
+.tm-log-line .log-ok{color:#22c55e;font-weight:700}
+.tm-log-line .log-text{color:#c4b5fd}
+.tm-log-line.done .log-prefix{color:#22c55e}
+.tm-progress-wrap{margin-top:.75rem}
+.tm-prog-label{display:flex;justify-content:space-between;font-size:.67rem;color:#a855f7;margin-bottom:.35rem;font-family:'Courier New',monospace}
+.tm-prog-bar{height:3px;background:#1a0a3a;border-radius:2px;overflow:hidden}
+.tm-prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#a855f7,#06b6d4);border-radius:2px;transition:width .6s ease;box-shadow:0 0 8px #a855f7}
+
+@media(max-width:600px){
+  .tm-title{letter-spacing:.14em;margin-bottom:1.75rem}
+  .tm-portal-wrap{margin-bottom:1.75rem}
+  .tm-console{padding:.7rem .85rem}
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .bottom{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .engine-wrap{flex-direction:column}
+  .engine-video{flex:none;order:-1}
+  .engine-chat{flex:none}
+  .ctrl-panel-inner{flex-direction:column}
+  .audio-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:600px){
+  nav{padding:.6rem 1rem}
+  .logo{font-size:1.1rem}
+  .hero{padding:2rem 1rem 1.5rem}
+  .stats-row{padding:0 1rem 1rem;gap:.5rem}
+  .main{padding:.75rem 1rem;gap:.9rem}
+  .bottom{padding:0 1rem 1rem;gap:.9rem}
+  .engine-section{padding:.75rem 1rem}
+  .ctrl-panel{padding:0 1rem 1rem}
+  .neon-divider{margin:0 1rem .5rem}
+  .presets-grid{grid-template-columns:repeat(2,1fr)}
+  .ctrl-row{flex-direction:column}
+  .btn-row{flex-direction:column}
+  .btn-row .btn{width:100%}
+  .stat-val{font-size:1.2rem}
+  .chat-log{height:260px}
+  .chat-actions{flex-direction:column}
+  .btn-anime-video,.btn-ask-more{width:100%}
+  .audio-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">AniLearn.X<span class="logo-sub" id="logoSub">TEXT-TO-ANIME CONVERTER</span></div>
+  <div class="nav-right">
+    <div class="nav-dot"></div>
+    <span class="nav-badge">BETA v2.4</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>Transform Knowledge<br>Into Anime Worlds</h1>
+  <p>Paste any educational text and watch it become an immersive anime-style learning experience with characters, scenes, and dialogue.</p>
+  <div class="hero-tags">
+    <span class="tag">⚡ AI-Powered</span>
+    <span class="tag">🎌 Anime Style</span>
+    <span class="tag">📚 Educational</span>
+    <span class="tag">🌐 Multi-Genre</span>
+    <span class="tag">🔊 Voice Ready</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-card"><div class="stat-val" id="s1">12.4K</div><div class="stat-label">Scenes Created</div></div>
+  <div class="stat-card"><div class="stat-val" id="s2">98%</div><div class="stat-label">Accuracy Rate</div></div>
+  <div class="stat-card"><div class="stat-val" id="s3">47</div><div class="stat-label">Anime Styles</div></div>
+  <div class="stat-card" id="streakCard"><div class="stat-val" id="s4">3.2s</div><div class="stat-label" id="s4label">Avg. Gen Time</div></div>
+</div>
+
+<div class="neon-divider"></div>
+
+<!-- ENGINE WORKSPACE -->
+<div class="engine-section">
+  <div class="engine-label">⚙️ Content Engine — Gemini Chat Port &amp; Anime Director Canvas</div>
+  <div class="engine-wrap">
+
+    <!-- LEFT 40%: GEMINI CHAT PORT -->
+    <div class="engine-chat">
+      <div class="panel" style="flex:1;display:flex;flex-direction:column">
+        <div class="panel-header">
+          <span class="panel-icon">✨</span>
+          <span class="panel-title">GEMINI CHAT PORT</span>
+          <span class="panel-badge" style="margin-left:auto;background:#06b6d41a;color:#06b6d4;border:1px solid #06b6d433;font-size:.63rem;font-weight:700;padding:.18rem .55rem;border-radius:10px">LIVE</span>
+        </div>
+        <div class="panel-body" style="flex:1;display:flex;flex-direction:column">
+          <div class="chat-log" id="chatLog">
+            <div class="bubble-wrap gemini">
+              <div class="bubble gemini">Hello! I'm Gemini. Paste your educational content and I'll help you craft the perfect anime learning experience. What topic shall we explore today?</div>
+              <span class="bubble-meta">Gemini · just now</span>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="chatInput" type="text" placeholder="Ask Gemini anything about your content..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="chat-send" onclick="sendChat()">Send ↑</button>
+          </div>
+          <div class="chat-actions">
+            <button class="btn-anime-video" onclick="makeAnimeVideo()">🎞️ Make an Anime Video</button>
+            <button class="btn-ask-more" onclick="askMore()">❓ Ask More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT 60%: ANIME DIRECTOR VIDEO CANVAS -->
+    <div class="engine-video">
+      <div class="panel" style="height:100%">
+        <div class="panel-header">
+          <span class="panel-icon">🎬</span>
+          <span class="panel-title">ANIME DIRECTOR CANVAS</span>
+          <span class="panel-badge bv">DIRECTOR MODE</span>
+        </div>
+        <div class="panel-body">
+          <div class="video-canvas">
+            <div class="video-canvas-inner">
+              <div class="vc-grid"></div>
+              <div class="vc-scene">
+                <div class="vc-placeholder" id="vcPlaceholder">
+                  <div class="vc-icon">🎥</div>
+                  <p>Your anime video scene will render here</p>
+                </div>
+                <div class="vc-active" id="vcActive">
+                  <div class="vc-frame">
+                    <div class="vc-frame-header">
+                      <div class="vc-rec"></div>
+                      <span class="vc-frame-title">SCENE 01 — RENDERING</span>
+                    </div>
+                    <div class="vc-frame-body">
+                      <p><span class="vc-cn">HIRO</span> <span class="vc-act">*energy surges around him as the cell diagram glows*</span></p>
+                      <p style="margin-top:.5rem"><span class="vc-dlg">"The mitochondria... it's not just science. It's the power of LIFE itself!"</span></p>
+                    </div>
+                  </div>
+                  <div class="vc-timeline">
+                    <div class="vc-tl-bar"><div class="vc-tl-fill"></div></div>
+                    <span class="vc-tl-time">0:04 / 0:32</span>
+                  </div>
+                  <div class="vc-controls">
+                    <button class="vc-ctrl-btn">⏮</button>
+                    <button class="vc-ctrl-btn">⏸</button>
+                    <button class="vc-ctrl-btn">⏭</button>
+                    <button class="vc-ctrl-btn">🔊</button>
+                    <button class="vc-ctrl-btn">⛶</button>
+                  </div>
+                </div>
+              </div>
+              <div class="vc-status" id="vcStatus">
+                <div class="vc-status-dot" id="vcDot"></div>
+                <span id="vcStatusText">STANDBY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="neon-divider" style="margin-bottom:1rem"></div>
+
+<!-- CONTROL PANEL -->
+<div class="ctrl-panel">
+  <div class="engine-label">🎛️ Control Panel &mdash; Audio &amp; Subtitle Preferences</div>
+  <div class="ctrl-panel-inner">
+
+    <!-- AUDIO TRACK GRID -->
+    <div class="ctrl-block">
+      <div class="ctrl-block-header">
+        <span class="panel-icon">🔊</span>
+        <span class="ctrl-block-title">AUDIO TRACK</span>
+        <span class="panel-badge bc" style="margin-left:auto">SELECT LANGUAGE</span>
+      </div>
+      <div class="audio-grid">
+        <div class="audio-tile selected" id="tile-en" onclick="selectAudio('en',this)">
+          <span class="at-flag">🇬🇧</span>
+          <span class="at-label">English</span>
+          <span class="at-check">✓</span>
+        </div>
+        <div class="audio-tile" id="tile-hi" onclick="selectAudio('hi',this)">
+          <span class="at-flag">🇮🇳</span>
+          <span class="at-label">Hindi</span>
+          <span class="at-check"></span>
+        </div>
+        <div class="audio-tile" id="tile-ja" onclick="selectAudio('ja',this)">
+          <span class="at-flag">🇯🇵</span>
+          <span class="at-label">Japanese</span>
+          <span class="at-check"></span>
+        </div>
+        <div class="audio-tile" id="tile-ot" onclick="selectAudio('ot',this)">
+          <span class="at-flag">🌐</span>
+          <span class="at-label">Other</span>
+          <span class="at-check"></span>
+        </div>
+      </div>
+      <div class="custom-lang-wrap" id="customLangWrap">
+        <input class="lang-input-field" id="customLangInput" type="text"
+          placeholder="Type custom language here..."
+          oninput="validateLang(this,'customLangError')">
+        <div class="lang-error-msg" id="customLangError">❌ Language not recognized. Please enter a valid world language.</div>
+      </div>
+    </div>
+
+    <!-- SUBTITLES TOGGLE -->
+    <div class="ctrl-block">
+      <div class="ctrl-block-header">
+        <span class="panel-icon">💬</span>
+        <span class="ctrl-block-title">SUBTITLES</span>
+        <span class="panel-badge" id="subBadge" style="margin-left:auto;background:#64748b1a;color:var(--muted);border:1px solid #64748b33;font-size:.63rem;font-weight:700;padding:.18rem .55rem;border-radius:10px">OFF</span>
+      </div>
+      <div class="sub-body">
+        <div class="sub-toggle-row">
+          <span class="sub-toggle-label">Enable subtitles for generated anime scenes</span>
+          <div class="toggle-track" id="subToggle" onclick="toggleSubs()">
+            <span class="toggle-opt active-off" id="subOff">OFF</span>
+            <span class="toggle-opt" id="subOn">ON</span>
+          </div>
+        </div>
+        <div class="sub-lang-wrap" id="subLangWrap">
+          <div class="sub-lang-hint">Enter target subtitle languages (press Enter to add)</div>
+          <input class="lang-input-field" id="subLangInput" type="text"
+            placeholder="e.g. Spanish, French, Korean..."
+            oninput="validateLang(this,'subLangError')"
+            onkeydown="if(event.key==='Enter')addSubTag()">
+          <div class="lang-error-msg" id="subLangError">❌ Language not recognized. Please enter a valid world language.</div>
+          <div class="sub-lang-tags" id="subLangTags"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="neon-divider" style="margin-bottom:1rem"></div>
+
+<!-- MAIN GRID -->
+<div class="main">
+
+  <!-- LEFT: INPUT PANEL -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-icon">✍️</span>
+      <span class="panel-title">INPUT STUDIO</span>
+      <span class="panel-badge bc">READY</span>
+    </div>
+    <div class="panel-body">
+      <div style="position:relative">
+        <textarea id="inputText" placeholder="Paste your educational content here...&#10;&#10;Example: The mitochondria is the powerhouse of the cell. It produces ATP through cellular respiration, converting glucose and oxygen into energy that powers all cellular functions..."></textarea>
+        <div class="input-footer">
+          <span class="char-count"><span id="cc">0</span> / 5000 chars</span>
+          <button class="sample-btn" onclick="loadSample()">Load Sample →</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="ctrl-row">
+          <div class="sel-wrap">
+            <label>Anime Genre</label>
+            <select id="genre">
+              <option>Shonen Action</option>
+              <option>Slice of Life</option>
+              <option>Sci-Fi Mecha</option>
+              <option>Fantasy RPG</option>
+              <option>Mystery Thriller</option>
+              <option>Isekai</option>
+            </select>
+          </div>
+          <div class="sel-wrap">
+            <label>Subject</label>
+            <select id="subject">
+              <option>Biology</option>
+              <option>Physics</option>
+              <option>Chemistry</option>
+              <option>Mathematics</option>
+              <option>History</option>
+              <option>Computer Science</option>
+            </select>
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <div class="sel-wrap">
+            <label>Difficulty</label>
+            <select id="diff">
+              <option>Beginner</option>
+              <option selected>Intermediate</option>
+              <option>Advanced</option>
+              <option>Expert</option>
+            </select>
+          </div>
+          <div class="sel-wrap">
+            <label>Output Length</label>
+            <select id="length">
+              <option>Short (2 scenes)</option>
+              <option selected>Medium (4 scenes)</option>
+              <option>Long (8 scenes)</option>
+              <option>Epic (12 scenes)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="slider-label-text">Creativity Level</div>
+          <div class="slider-row">
+            <input type="range" min="1" max="10" value="7" id="creativity" oninput="document.getElementById('cv').textContent=this.value">
+            <span class="sval" id="cv">7</span>
+          </div>
+        </div>
+        <div>
+          <div class="slider-label-text">Drama Intensity</div>
+          <div class="slider-row">
+            <input type="range" min="1" max="10" value="5" id="drama" oninput="document.getElementById('dv').textContent=this.value">
+            <span class="sval" id="dv">5</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="slider-label-text" style="margin-bottom:.4rem">Features</div>
+          <div class="chip-group">
+            <span class="chip on" onclick="toggleChip(this)">💬 Dialogue</span>
+            <span class="chip on" onclick="toggleChip(this)">🎭 Characters</span>
+            <span class="chip on" onclick="toggleChip(this)">🌅 Scene Art</span>
+            <span class="chip" onclick="toggleChip(this)">🔊 Voice Lines</span>
+            <span class="chip" onclick="toggleChip(this)">📝 Quiz Mode</span>
+            <span class="chip" onclick="toggleChip(this)">🎵 BGM Tags</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="generate()" style="flex:2">⚡ Generate Anime Scene</button>
+        <button class="btn btn-ghost" onclick="clearAll()">🗑 Clear</button>
+      </div>
+
+      <div class="prog-wrap" id="progWrap">
+        <div class="prog-top"><span id="progLabel">Initializing AI engine...</span><span id="progPct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: OUTPUT PANEL -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-icon">🎬</span>
+      <span class="panel-title">SCENE OUTPUT</span>
+      <span class="panel-badge bp" id="outBadge">WAITING</span>
+    </div>
+    <div class="panel-body">
+      <div class="output-screen">
+        <div class="out-placeholder" id="outPlaceholder">
+          <div class="big">🎌</div>
+          <p>Your anime scene will appear here after generation</p>
+        </div>
+        <div class="out-content" id="outContent">
+          <div class="scene">
+            <div class="scene-head">
+              <span class="scene-num">SCENE 01</span>
+              <span class="scene-ttl">The Awakening of Knowledge</span>
+            </div>
+            <div class="scene-body">
+              <p><span class="cn">HIRO</span> <span class="act">*stares at the glowing cell diagram, eyes wide*</span></p>
+              <p style="margin-top:.5rem"><span class="dlg">"Sensei... the mitochondria... it's not just a powerhouse. It's the very SOUL of the cell!"</span></p>
+              <p style="margin-top:.5rem"><span class="cn">PROFESSOR AIZEN</span> <span class="act">*adjusts glasses, a rare smile forming*</span></p>
+              <p style="margin-top:.5rem"><span class="dlg">"Correct. ATP synthesis — 36 molecules per glucose cycle. That energy... it flows through every living thing."</span></p>
+            </div>
+            <div class="scene-tags">
+              <span class="stag">Biology</span><span class="stag">Cellular Respiration</span><span class="stag">Shonen</span><span class="stag">Educational</span>
+            </div>
+          </div>
+          <div class="scene">
+            <div class="scene-head">
+              <span class="scene-num">SCENE 02</span>
+              <span class="scene-ttl">The ATP Revelation</span>
+            </div>
+            <div class="scene-body">
+              <p><span class="act">*The classroom transforms — mitochondria float like glowing orbs around HIRO*</span></p>
+              <p style="margin-top:.5rem"><span class="cn">HIRO</span> <span class="act">*reaches out, touching an ATP molecule*</span></p>
+              <p style="margin-top:.5rem"><span class="dlg">"Glucose plus oxygen... equals energy plus carbon dioxide plus water. This is the equation of LIFE itself!"</span></p>
+            </div>
+            <div class="scene-tags">
+              <span class="stag">ATP Synthesis</span><span class="stag">Visualization</span><span class="stag">Key Concept</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row" id="outBtns" style="display:none">
+        <button class="btn btn-sec" onclick="exportScene()">📤 Export</button>
+        <button class="btn btn-ghost" onclick="copyScene()">📋 Copy</button>
+        <button class="btn btn-ghost" onclick="regenerate()">🔄 Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- BOTTOM GRID -->
+<div class="bottom">
+
+  <!-- STYLE PRESETS -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-icon">🎨</span>
+      <span class="panel-title">ANIME STYLE PRESETS</span>
+      <span class="panel-badge bv">47 STYLES</span>
+    </div>
+    <div class="panel-body">
+      <div class="presets-grid">
+        <div class="preset on" onclick="selectPreset(this)">
+          <div class="preset-ico">⚔️</div>
+          <div class="preset-name">Battle Academy</div>
+          <div class="preset-desc">High energy, rivalry</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🔬</div>
+          <div class="preset-name">Lab Chronicles</div>
+          <div class="preset-desc">Scientific discovery</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🌸</div>
+          <div class="preset-name">Sakura Campus</div>
+          <div class="preset-desc">Slice of life, calm</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🤖</div>
+          <div class="preset-name">Cyber Nexus</div>
+          <div class="preset-desc">Futuristic, tech</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🧙</div>
+          <div class="preset-name">Magic Academy</div>
+          <div class="preset-desc">Fantasy, spells</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🌌</div>
+          <div class="preset-name">Cosmic Drift</div>
+          <div class="preset-desc">Space, philosophy</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🏯</div>
+          <div class="preset-name">Feudal Wisdom</div>
+          <div class="preset-desc">Historical, honor</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🎮</div>
+          <div class="preset-name">Game World</div>
+          <div class="preset-desc">RPG, stats, quests</div>
+        </div>
+        <div class="preset" onclick="selectPreset(this)">
+          <div class="preset-ico">🌊</div>
+          <div class="preset-name">Ocean Depths</div>
+          <div class="preset-desc">Exploration, calm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-icon">📜</span>
+      <span class="panel-title">RECENT HISTORY</span>
+      <span class="panel-badge by">SAVED</span>
+    </div>
+    <div class="panel-body">
+      <div class="history" id="historyList">
+        <div class="h-item" onclick="loadHistory(this)">
+          <div class="h-dot"></div>
+          <span class="h-text">Photosynthesis — Light reactions and the Calvin cycle explained</span>
+          <span class="h-time">2m ago</span>
+        </div>
+        <div class="h-item" onclick="loadHistory(this)">
+          <div class="h-dot" style="background:var(--purple);box-shadow:var(--glow-p)"></div>
+          <span class="h-text">Newton's Laws of Motion — Three fundamental principles</span>
+          <span class="h-time">15m ago</span>
+        </div>
+        <div class="h-item" onclick="loadHistory(this)">
+          <div class="h-dot" style="background:var(--pink);box-shadow:var(--glow-p)"></div>
+          <span class="h-text">World War II — Causes, key events, and aftermath</span>
+          <span class="h-time">1h ago</span>
+        </div>
+        <div class="h-item" onclick="loadHistory(this)">
+          <div class="h-dot"></div>
+          <span class="h-text">Quadratic equations — Solving with the quadratic formula</span>
+          <span class="h-time">3h ago</span>
+        </div>
+        <div class="h-item" onclick="loadHistory(this)">
+          <div class="h-dot" style="background:var(--yellow);box-shadow:0 0 8px #ffd700"></div>
+          <span class="h-text">DNA replication — Semi-conservative model and enzymes</span>
+          <span class="h-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /bottom -->
+
+<footer>
+  <p>Built with ❤️ by <span>AniLearn.X</span> · Powered by <span>Anime AI Engine v2.4</span> · © 2025 All rights reserved</p>
+</footer>
+
+<!-- TELEPORTATION MATRIX -->
+<div id="teleMatrix">
+  <div class="tm-bg"></div>
+  <div class="tm-stars" id="tmStars"></div>
+
+  <div class="tm-title">TRANSMITTING TO <span>COMPUTE MATRIX</span></div>
+
+  <div class="tm-portal-wrap">
+    <div class="tm-beams">
+      <div class="tm-beam"></div>
+      <div class="tm-beam"></div>
+      <div class="tm-beam"></div>
+      <div class="tm-beam"></div>
+      <div class="tm-beam"></div>
+    </div>
+    <div class="tm-ring tm-ring-1"></div>
+    <div class="tm-ring tm-ring-2"></div>
+    <div class="tm-ring tm-ring-3"></div>
+    <div class="tm-core"><span class="tm-core-icon">⚡</span></div>
+  </div>
+
+  <div class="tm-console">
+    <div class="tm-console-bar">
+      <div class="tm-console-dot" style="background:#ef4444"></div>
+      <div class="tm-console-dot" style="background:#fbbf24"></div>
+      <div class="tm-console-dot" style="background:#22c55e"></div>
+      <span class="tm-console-title">MATRIX CONSOLE &mdash; LIVE FEED</span>
+    </div>
+    <div class="tm-log-lines" id="tmLogLines"></div>
+    <div class="tm-progress-wrap">
+      <div class="tm-prog-label"><span id="tmProgLabel">Initializing...</span><span id="tmProgPct">0%</span></div>
+      <div class="tm-prog-bar"><div class="tm-prog-fill" id="tmProgFill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SSO OVERLAY -->
+<div id="ssoOverlay">
+  <div class="sso-card">
+
+    <!-- ACCOUNT PICKER VIEW -->
+    <div class="account-picker" id="accountPicker">
+      <div class="ap-header">
+        <div class="ap-g-logo">
+          <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          <div class="ap-g-wordmark"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div>
+        </div>
+        <div class="ap-headline">Choose an account to sign in to <strong style="color:#e8eaed">AniLearn.X</strong></div>
+      </div>
+      <div class="ap-accounts">
+        <button class="ap-account" onclick="pickAccount('student.genius@gmail.com','SG','av1',this)">
+          <div class="ap-avatar av1">SG</div>
+          <div class="ap-info">
+            <div class="ap-name">Student Genius</div>
+            <div class="ap-email">student.genius@gmail.com</div>
+          </div>
+          <span class="ap-arrow">›</span>
+        </button>
+        <div class="ap-divider"></div>
+        <button class="ap-account" onclick="pickAccount('guest.user@gmail.com','GU','av2',this)">
+          <div class="ap-avatar av2">GU</div>
+          <div class="ap-info">
+            <div class="ap-name">Guest User</div>
+            <div class="ap-email">guest.user@gmail.com</div>
+          </div>
+          <span class="ap-arrow">›</span>
+        </button>
+      </div>
+      <div class="ap-divider"></div>
+      <div class="ap-footer">
+        <button class="ap-add-btn">＋ Use another account</button>
+        <span class="ap-privacy"><a href="#">Privacy</a> · <a href="#">Terms</a></span>
+      </div>
+    </div>
+
+    <!-- LOGIN VIEW -->
+    <div id="loginView">
+      <div class="sso-top">
+        <div class="sso-logo-wrap">
+          <div class="sso-logo-icon">🎌</div>
+          <span class="sso-logo-name">AniLearn.X</span>
+        </div>
+        <div class="sso-headline">Welcome back</div>
+        <div class="sso-sub">Sign in to access your anime learning workspace and saved scenes.</div>
+      </div>
+      <div class="sso-body">
+        <button class="google-btn" onclick="showConsent()">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+          Sign in with Google
+        </button>
+        <div class="sso-divider">Secure SSO Authentication</div>
+        <div class="sso-footer-note">By signing in you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.<br>Your data is encrypted and never shared.</div>
+        <div class="sso-toggle-link">New here? <button onclick="showCreateAccount()">Create a new account</button></div>
+      </div>
+    </div>
+
+    <!-- CREATE ACCOUNT VIEW -->
+    <div class="create-view" id="createView">
+      <div class="sso-top">
+        <div class="sso-logo-wrap">
+          <div class="sso-logo-icon">🎌</div>
+          <span class="sso-logo-name">AniLearn.X</span>
+        </div>
+        <div class="sso-headline">Create your account</div>
+        <div class="sso-sub">Stored securely in your browser's local memory.</div>
+      </div>
+      <div class="create-form">
+        <div class="create-field">
+          <label for="regEmail">Email Address</label>
+          <input class="create-input" id="regEmail" type="email" placeholder="you@example.com" oninput="clearCreateErr('regEmail','regEmailErr')">
+          <div class="create-inline-err" id="regEmailErr"></div>
+        </div>
+        <div class="create-field">
+          <label for="regPass">Password</label>
+          <input class="create-input" id="regPass" type="password" placeholder="Min. 6 characters" oninput="clearCreateErr('regPass','regPassErr')">
+          <div class="create-inline-err" id="regPassErr"></div>
+        </div>
+        <button class="btn-register" onclick="registerUser()">Register New User</button>
+      </div>
+      <div class="create-success" id="createSuccess">✅ Account successfully registered to browser storage!</div>
+      <div class="create-back">Already have an account? <button onclick="showLoginView()">Sign in instead</button></div>
+    </div>
+
+    <!-- CONSENT VIEW -->
+    <div class="consent-view" id="consentView">
+      <div class="consent-header">
+        <div class="consent-avatar" id="consentAvatar" style="background:linear-gradient(135deg,#4285f4,#0d47a1)">SG</div>
+        <div>
+          <div class="consent-user" id="consentUser">student.genius@gmail.com</div>
+          <div class="consent-email">Google Account</div>
+        </div>
+      </div>
+      <div class="consent-body">
+        <div class="consent-app-row">
+          <div class="consent-app-ico">🎌</div>
+          <div style="flex:1">
+            <div class="consent-app-name">AniLearn.X</div>
+            <div class="consent-app-domain">anilearn.x</div>
+          </div>
+          <div class="consent-arrow">⇄</div>
+          <div class="consent-gcf-ico">☁️</div>
+          <div style="flex:1">
+            <div class="consent-app-name">Google Cloud Flow</div>
+            <div class="consent-app-domain">workspace.google.com</div>
+          </div>
+        </div>
+        <p class="consent-text"><strong>AniLearn.X</strong> requires authorization to link with your <strong>Google Cloud Flow</strong> workspace to manage prompt orchestration, handle language checks, and automate email delivery.</p>
+        <div class="consent-perms">
+          <div class="perm-item"><span class="perm-ico">⚡</span><span>Manage prompt orchestration pipelines in your Cloud Flow workspace</span></div>
+          <div class="perm-item"><span class="perm-ico">🔤</span><span>Handle language detection and content checks on generated scenes</span></div>
+          <div class="perm-item"><span class="perm-ico">📧</span><span>Automate email delivery of exported anime scenes and reports</span></div>
+          <div class="perm-item"><span class="perm-ico">👤</span><span>Read your basic profile info and email address</span></div>
+        </div>
+        <div class="consent-btns">
+          <button class="btn-allow" onclick="grantAccess()">✦ Allow Access</button>
+          <button class="btn-cancel" onclick="cancelConsent()">Cancel</button>
+        </div>
+        <div class="consent-note">Granting access lets AniLearn.X act on your behalf. You can revoke this at any time in your <a href="#">Google Account settings</a>.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Backend endpoint map — points to live Render web service ────
+// Empty string = relative URLs → same origin as the Express server.
+// When deployed to Render, all /api/* calls hit the same process.
+const BACKEND_HOST = '';
+
+const sampleText = `The mitochondria is the powerhouse of the cell. It produces ATP through cellular respiration, converting glucose and oxygen into energy. The process involves two main stages: glycolysis in the cytoplasm and the Krebs cycle within the mitochondria. Each glucose molecule yields approximately 36-38 ATP molecules. The inner membrane of the mitochondria contains cristae, which increase surface area for ATP synthase enzymes. This organelle also plays a role in apoptosis and calcium signaling.`;
+
+const steps = [
+  "Analyzing educational content...",
+  "Identifying key concepts...",
+  "Generating characters...",
+  "Building scene structure...",
+  "Writing dialogue...",
+  "Applying anime style...",
+  "Finalizing output..."
+];
+
+function loadSample() {
+  const ta = document.getElementById('inputText');
+  ta.value = sampleText;
+  updateCC();
+}
+
+function updateCC() {
+  const v = document.getElementById('inputText').value.length;
+  document.getElementById('cc').textContent = v;
+}
+
+document.getElementById('inputText').addEventListener('input', updateCC);
+
+function toggleChip(el) { el.classList.toggle('on'); }
+
+function selectPreset(el) {
+  document.querySelectorAll('.preset').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function clearAll() {
+  document.getElementById('inputText').value = '';
+  updateCC();
+  document.getElementById('outPlaceholder').style.display = 'flex';
+  document.getElementById('outContent').classList.remove('show');
+  document.getElementById('outBtns').style.display = 'none';
+  document.getElementById('outBadge').textContent = 'WAITING';
+  document.getElementById('outBadge').className = 'panel-badge bp';
+  document.getElementById('progWrap').classList.remove('show');
+}
+
+function generate() {
+  const txt = document.getElementById('inputText').value.trim();
+  if (!txt) { loadSample(); return; }
+  launchMatrix();
+}
+
+function showOutput() {
+  document.getElementById('outPlaceholder').style.display = 'none';
+  document.getElementById('outContent').classList.add('show');
+  document.getElementById('outBtns').style.display = 'flex';
+  document.getElementById('outBadge').textContent = 'COMPLETE';
+  document.getElementById('outBadge').className = 'panel-badge bc';
+  document.getElementById('progWrap').classList.remove('show');
+  addHistory();
+}
+
+function regenerate() {
+  document.getElementById('outContent').classList.remove('show');
+  document.getElementById('outBtns').style.display = 'none';
+  document.getElementById('outPlaceholder').style.display = 'flex';
+  generate();
+}
+
+function exportScene() {
+  const blob = new Blob([document.getElementById('outContent').innerText], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'anilearn-scene.txt';
+  a.click();
+}
+
+function copyScene() {
+  navigator.clipboard.writeText(document.getElementById('outContent').innerText)
+    .then(() => alert('Scene copied to clipboard!'));
+}
+
+function loadHistory(el) {
+  const text = el.querySelector('.h-text').textContent;
+  document.getElementById('inputText').value = text;
+  updateCC();
+}
+
+function addHistory() {
+  const txt = document.getElementById('inputText').value.trim().slice(0, 60) + '...';
+  const list = document.getElementById('historyList');
+  const item = document.createElement('div');
+  item.className = 'h-item';
+  item.onclick = function(){ loadHistory(this); };
+  item.innerHTML = `<div class="h-dot"></div><span class="h-text">${txt}</span><span class="h-time">Just now</span>`;
+  list.insertBefore(item, list.firstChild);
+  if (list.children.length > 6) list.removeChild(list.lastChild);
+}
+
+(function buildStars(){
+  const c = document.getElementById('tmStars');
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div');
+    s.className='tm-star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${.1+Math.random()*.5}`;
+    c.appendChild(s);
+  }
+})();
+
+function launchMatrix(onComplete){
+  const el = document.getElementById('teleMatrix');
+  el.classList.add('active');
+  document.body.style.overflow='hidden';
+  const lines = document.getElementById('tmLogLines');
+  const fill = document.getElementById('tmProgFill');
+  const pct = document.getElementById('tmProgPct');
+  const lbl = document.getElementById('tmProgLabel');
+  lines.innerHTML='';
+  fill.style.width='0%';
+
+  const logs = [
+    {text:'Syncing Google authorization token...', delay:0},
+    {text:'Gemini script parsing complete...', delay:2000},
+    {text:'Asynchronously rendering anime battle frames...', delay:4000},
+    {text:'Pipeline dispatched — background render queued.', delay:6000}
+  ];
+
+  logs.forEach((log,i)=>{
+    setTimeout(()=>{
+      const div=document.createElement('div');
+      div.className='tm-log-line'+(i===logs.length-1?' done':'');
+      const prefix = i===logs.length-1 ? '\u2714' : '\u25b6';
+      div.innerHTML=`<span class="log-prefix">[${prefix}] </span><span class="log-text">${log.text}</span>`;
+      lines.appendChild(div);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>div.classList.add('show')));
+      lines.scrollTop=lines.scrollHeight;
+      const p=Math.round((i+1)/logs.length*100);
+      fill.style.width=p+'%';
+      pct.textContent=p+'%';
+      lbl.textContent=log.text.slice(0,32)+'...';
+      if(i===logs.length-1){
+        setTimeout(()=>closeMatrix(onComplete),2200);
+      }
+    },log.delay);
+  });
+}
+
+function closeMatrix(onComplete){
+  const el=document.getElementById('teleMatrix');
+  el.classList.remove('active');
+  document.body.style.overflow='';
+  if(typeof onComplete==='function') onComplete();
+  else showOutput();
+}
+
+// Control Panel
+const validLanguages = [
+  'afrikaans','albanian','amharic','arabic','armenian','azerbaijani','basque','belarusian',
+  'bengali','bosnian','bulgarian','catalan','cebuano','chinese','mandarin','cantonese',
+  'corsican','croatian','czech','danish','dutch','english','esperanto','estonian','finnish',
+  'french','frisian','galician','georgian','german','greek','gujarati','haitian','hausa',
+  'hawaiian','hebrew','hindi','hmong','hungarian','icelandic','igbo','indonesian','irish',
+  'italian','japanese','javanese','kannada','kazakh','khmer','kinyarwanda','korean','kurdish',
+  'kyrgyz','lao','latin','latvian','lithuanian','luxembourgish','macedonian','malagasy','malay',
+  'malayalam','maltese','maori','marathi','mongolian','myanmar','burmese','nepali','norwegian',
+  'nyanja','odia','pashto','persian','polish','portuguese','punjabi','romanian','russian',
+  'samoan','scots','serbian','sesotho','shona','sindhi','sinhala','slovak','slovenian',
+  'somali','spanish','sundanese','swahili','swedish','tagalog','tajik','tamil','tatar',
+  'telugu','thai','turkish','turkmen','ukrainian','urdu','uyghur','uzbek','vietnamese',
+  'welsh','xhosa','yiddish','yoruba','zulu'
+];
+
+function selectAudio(code, el) {
+  document.querySelectorAll('.audio-tile').forEach(t => {
+    t.classList.remove('selected');
+    t.querySelector('.at-check').textContent = '';
+  });
+  el.classList.add('selected');
+  el.querySelector('.at-check').textContent = '\u2713';
+  const wrap = document.getElementById('customLangWrap');
+  if (code === 'ot') {
+    wrap.classList.add('open');
+    setTimeout(() => document.getElementById('customLangInput').focus(), 350);
+  } else {
+    wrap.classList.remove('open');
+    document.getElementById('customLangInput').value = '';
+    clearLangError('customLangInput', 'customLangError');
+  }
+}
+
+function toggleSubs() {
+  const track = document.getElementById('subToggle');
+  const onBtn = document.getElementById('subOn');
+  const offBtn = document.getElementById('subOff');
+  const wrap = document.getElementById('subLangWrap');
+  const badge = document.getElementById('subBadge');
+  const isOn = onBtn.classList.contains('active-on');
+  if (isOn) {
+    onBtn.classList.remove('active-on');
+    offBtn.classList.add('active-off');
+    track.classList.remove('on');
+    wrap.classList.remove('open');
+    badge.textContent = 'OFF';
+    badge.style.cssText = 'margin-left:auto;background:#64748b1a;color:var(--muted);border:1px solid #64748b33;font-size:.63rem;font-weight:700;padding:.18rem .55rem;border-radius:10px';
+  } else {
+    offBtn.classList.remove('active-off');
+    onBtn.classList.add('active-on');
+    track.classList.add('on');
+    wrap.classList.add('open');
+    badge.textContent = 'ON';
+    badge.style.cssText = 'margin-left:auto;background:#06b6d41a;color:#06b6d4;border:1px solid #06b6d433;font-size:.63rem;font-weight:700;padding:.18rem .55rem;border-radius:10px';
+    setTimeout(() => document.getElementById('subLangInput').focus(), 350);
+  }
+}
+
+function validateLang(input, errorId) {
+  const val = input.value.trim().toLowerCase();
+  const err = document.getElementById(errorId);
+  if (val.length < 2) { clearLangError(input.id, errorId); return; }
+  const isValid = validLanguages.some(l => l.startsWith(val) || val.startsWith(l.slice(0,3)));
+  if (!isValid) {
+    input.classList.add('error');
+    err.classList.add('show');
+  } else {
+    clearLangError(input.id, errorId);
+  }
+}
+
+function clearLangError(inputId, errorId) {
+  const input = document.getElementById(inputId);
+  if (input) input.classList.remove('error');
+  const err = document.getElementById(errorId);
+  if (err) err.classList.remove('show');
+}
+
+function addSubTag() {
+  const input = document.getElementById('subLangInput');
+  const val = input.value.trim();
+  if (!val || input.classList.contains('error')) return;
+  const tags = document.getElementById('subLangTags');
+  const tag = document.createElement('div');
+  tag.className = 'sub-lang-tag';
+  const label = val.charAt(0).toUpperCase() + val.slice(1);
+  tag.innerHTML = `<span>${label}</span><button onclick="this.parentElement.remove()" title="Remove">&times;</button>`;
+  tags.appendChild(tag);
+  input.value = '';
+  clearLangError('subLangInput', 'subLangError');
+}
+
+// Chat engine
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  appendBubble('user', msg);
+  input.value = '';
+  showTyping();
+  try {
+    const res = await fetch(`${BACKEND_HOST}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    removeTyping();
+    appendGeminiCard(data.reply || data.message || JSON.stringify(data));
+  } catch (err) {
+    removeTyping();
+    appendGeminiCard('⚠️ ' + err.message, true);
+  }
+}
+
+function appendBubble(role, text) {
+  const log = document.getElementById('chatLog');
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap ' + role;
+  const meta = role === 'user' ? 'You' : 'Gemini';
+  wrap.innerHTML = `<div class="bubble ${role}">${text}</div><span class="bubble-meta">${meta} &middot; just now</span>`;
+  log.appendChild(wrap);
+  log.scrollTop = log.scrollHeight;
+}
+
+function appendGeminiCard(text, isError = false) {
+  const log = document.getElementById('chatLog');
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap gemini';
+  const cardStyle = isError
+    ? 'max-width:92%;padding:.75rem 1rem;border-radius:12px;border-bottom-left-radius:4px;font-size:.82rem;line-height:1.65;word-break:break-word;background:#1a0005;border:1px solid #ef444455;color:#f87171'
+    : 'max-width:92%;padding:.75rem 1rem;border-radius:12px;border-bottom-left-radius:4px;font-size:.82rem;line-height:1.65;word-break:break-word;background:#022c1a;border:1px solid #10b98155;color:#34d399;box-shadow:0 0 14px #10b98118';
+  wrap.innerHTML = `<div style="${cardStyle}">${text}</div><span class="bubble-meta">Gemini &middot; just now</span>`;
+  log.appendChild(wrap);
+  log.scrollTop = log.scrollHeight;
+}
+
+function showTyping() {
+  const log = document.getElementById('chatLog');
+  const t = document.createElement('div');
+  t.id = 'typingIndicator';
+  t.className = 'bubble-wrap gemini';
+  t.innerHTML = '<div class="gemini-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  log.appendChild(t);
+  log.scrollTop = log.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingIndicator');
+  if (t) t.remove();
+}
+
+async function makeAnimeVideo() {
+  const selectedTile = document.querySelector('.audio-tile.selected');
+  const audioLang = selectedTile
+    ? (selectedTile.id === 'tile-ot'
+        ? (document.getElementById('customLangInput').value.trim() || 'other')
+        : selectedTile.querySelector('.at-label').textContent)
+    : 'English';
+  const subsOn = document.getElementById('subOn').classList.contains('active-on');
+  const subTags = [...document.querySelectorAll('.sub-lang-tag span')].map(s => s.textContent);
+  const subtitles = subsOn ? (subTags.length ? subTags.join(', ') : 'on') : 'off';
+  const userEmail = selectedAccount || localStorage.getItem('anilearn_current_user') || 'anonymous';
+  const prompt = document.getElementById('inputText').value.trim() || 'anime educational scene';
+
+  const compileBtn = document.querySelector('.btn-anime-video');
+  compileBtn.disabled = true;
+  const prev = document.getElementById('videoFeedbackBox');
+  if (prev) prev.remove();
+
+  try {
+    const res = await fetch(`${BACKEND_HOST}/api/generate-video`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, audio_track: audioLang, subtitles, user_email: userEmail })
+    });
+    const data = await res.json();
+    compileBtn.disabled = false;
+
+    if (!res.ok) throw new Error(data.error || data.message || 'HTTP ' + res.status);
+
+    // Live response — launch full-screen matrix, show completion alert on close
+    launchMatrix(() => {
+      showVideoDispatchAlert(userEmail);
+    });
+
+  } catch (err) {
+    compileBtn.disabled = false;
+    const box = document.createElement('div');
+    box.id = 'videoFeedbackBox';
+    box.style.cssText = 'margin:.9rem 0 0;background:#1a0005;border:1px solid #ef444455;border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:#f87171;line-height:1.55';
+    box.innerHTML =
+      '<strong>❌ Dispatch Failed</strong><br>' +
+      '<code style="display:block;margin:.4rem 0;font-size:.68rem;word-break:break-all;color:#fca5a5">POST → ' + BACKEND_HOST + '/api/generate-video</code>' +
+      '<span style="font-size:.7rem">' + err.message + '</span>';
+    document.querySelector('.chat-actions').after(box);
+  }
+}
+
+function showVideoDispatchAlert(email) {
+  const overlay = document.createElement('div');
+  overlay.id = 'dispatchAlert';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(5,8,14,.92);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;padding:1.5rem;animation:cardIn .35s cubic-bezier(.34,1.56,.64,1) both';
+  overlay.innerHTML =
+    '<div style="background:#0d1220;border:1px solid #a855f733;border-radius:18px;max-width:420px;width:100%;padding:2rem;text-align:center;box-shadow:0 0 60px #a855f722">' +
+      '<div style="font-size:2.8rem;margin-bottom:1rem">🚀</div>' +
+      '<div style="font-size:1.05rem;font-weight:800;color:#e0d4ff;margin-bottom:.6rem;letter-spacing:.04em">Pipeline Accepted!</div>' +
+      '<p style="font-size:.82rem;color:#94a3b8;line-height:1.65;margin-bottom:1.25rem">Your video generation task has been successfully queued in the background rendering pipeline.<br><br>' +
+        '<span style="color:#a855f7;font-weight:600">' + email + '</span> will receive the compiled anime scene link once processing completes.<br><br>' +
+        'You can safely close this tab — the backend will handle everything asynchronously.</p>' +
+      '<button onclick="document.getElementById(\"dispatchAlert\").remove()" style="background:linear-gradient(135deg,#a855f7,#06b6d4);color:#000;border:none;border-radius:9px;padding:.75rem 2rem;font-size:.88rem;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.05em">✓ Got it, closing</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+}
+
+function askMore() {
+  document.getElementById('chatInput').focus();
+  document.getElementById('chatInput').placeholder = 'What else would you like to explore?';
+  appendBubble('gemini', '💡 Sure! Ask me anything — I can expand on any concept, add more characters, adjust the drama level, or suggest a different anime style for your content.');
+}
+
+// ── Supabase direct config (legacy fallback — not used by register flow) ───
+const CLOUD_URL = 'https://YOUR_PROJECT_ID.supabase.co/rest/v1/users';
+const CLOUD_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+// Create Account
+function showCreateAccount(){
+  document.getElementById('loginView').style.display='none';
+  const cv=document.getElementById('createView');
+  cv.classList.add('show');
+  cv.style.animation='cardIn .32s cubic-bezier(.34,1.56,.64,1) both';
+  document.getElementById('regEmail').focus();
+}
+
+function showLoginView(){
+  document.getElementById('createView').classList.remove('show');
+  const lv=document.getElementById('loginView');
+  lv.style.display='';
+  lv.style.animation='cardIn .3s ease both';
+  // Reset form
+  document.getElementById('regEmail').value='';
+  document.getElementById('regPass').value='';
+  document.getElementById('createSuccess').classList.remove('show');
+  clearCreateErr('regEmail','regEmailErr');
+  clearCreateErr('regPass','regPassErr');
+}
+
+function clearCreateErr(inputId, errId){
+  document.getElementById(inputId).classList.remove('err');
+  document.getElementById(errId).classList.remove('show');
+}
+
+async function registerUser() {
+  const emailEl   = document.getElementById('regEmail');
+  const passEl    = document.getElementById('regPass');
+  const email     = emailEl.value.trim();
+  const pass      = passEl.value;
+  const successBox = document.getElementById('createSuccess');
+  const btn       = document.querySelector('.btn-register');
+  let valid = true;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    emailEl.classList.add('err');
+    const e = document.getElementById('regEmailErr');
+    e.textContent = 'Please enter a valid email address.';
+    e.classList.add('show');
+    valid = false;
+  }
+  if (pass.length < 6) {
+    passEl.classList.add('err');
+    const e = document.getElementById('regPassErr');
+    e.textContent = 'Password must be at least 6 characters.';
+    e.classList.add('show');
+    valid = false;
+  }
+  if (!valid) return;
+
+  btn.textContent = 'Connecting...';
+  btn.disabled = true;
+  successBox.removeAttribute('style');
+  successBox.classList.remove('show');
+
+  try {
+    const res = await fetch(`${BACKEND_HOST}/api/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || data.message || 'HTTP ' + res.status);
+
+    // ─ PATH 1: Server returned simulation / demo mode ──────────────────────────
+    if (data.simulated) {
+      successBox.style.cssText = 'display:block;background:#1c0f00;border-color:#f9731655;color:#fb923c';
+      successBox.innerHTML =
+        '<strong>⚠️ Demo Mode — Backend simulation active.</strong><br>' +
+        '<code style="display:block;margin:.4rem 0;font-size:.68rem;word-break:break-all;color:#fcd34d">POST → ' + BACKEND_HOST + '/api/register</code>' +
+        '<span style="font-size:.7rem">' + (data.message || 'Simulated response received.') + ' Saving to localStorage as fallback.</span>';
+      const stored = JSON.parse(localStorage.getItem('anilearn_accounts') || '{}');
+      stored[email] = { password: pass, createdAt: new Date().toISOString(), streak: 0 };
+      localStorage.setItem('anilearn_accounts', JSON.stringify(stored));
+      localStorage.setItem('anilearn_current_user', email);
+      btn.textContent = 'Register New User';
+      btn.disabled = false;
+      setTimeout(() => finalizeIdentityLogin(email, false), 2400);
+      return;
+    }
+
+    // ─ PATH 2: Live Supabase row confirmed ────────────────────────────────────
+    const confirmedEmail = (data.email) ? data.email : email;
+    successBox.style.cssText = 'display:block;background:#052018;border-color:#22c55e44;color:#4ade80';
+    successBox.innerHTML = '✅ Account registered to cloud storage!';
+    setTimeout(() => finalizeIdentityLogin(confirmedEmail, true), 1600);
+
+  } catch (err) {
+    // ─ PATH 3: Network / HTTP 500 failure ─────────────────────────────────────
+    console.error('[AniLearn.X] /api/register error:', err.message);
+    successBox.style.cssText = 'display:block;background:#1a0005;border-color:#ef444455;color:#f87171';
+    successBox.innerHTML =
+      '<strong>❌ Registration failed.</strong><br>' +
+      '<code style="display:block;margin:.4rem 0;font-size:.68rem;word-break:break-all;color:#fca5a5">POST → ' + BACKEND_HOST + '/api/register</code>' +
+      '<span style="font-size:.7rem">' + err.message + '</span>';
+    btn.textContent = 'Register New User';
+    btn.disabled = false;
+  }
+}
+
+function finalizeIdentityLogin(email, fromCloud) {
+  const o = document.getElementById('ssoOverlay');
+  o.classList.add('hide');
+  setTimeout(() => {
+    o.remove();
+    const sub = document.getElementById('logoSub');
+    sub.textContent = fromCloud
+      ? '⚡ ANILEARN.X | Connected to Cloud Storage | Welcome, ' + email + '!'
+      : '⚡ ANILEARN.X | Welcome, ' + email + '!';
+    sub.style.cssText = '-webkit-text-fill-color:var(--cyan);color:var(--cyan);font-weight:700;letter-spacing:.06em';
+    document.getElementById('s4').textContent = '0';
+    document.getElementById('s4label').textContent = '🔥 0 Day Streak';
+    document.getElementById('s4').style.cssText =
+      'font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--muted),#334155);' +
+      '-webkit-background-clip:text;-webkit-text-fill-color:transparent';
+  }, 400);
+}
+
+// SSO functions
+let selectedAccount = null;
+
+const accounts = {
+  'student.genius@gmail.com': {
+    displayName: 'Student Genius',
+    shortName: 'Student Genius',
+    initials: 'SG',
+    avatarClass: 'av1',
+    streak: 5,
+    streakLabel: '🔥 5 Day Streak'
+  },
+  'guest.user@gmail.com': {
+    displayName: 'Guest User',
+    shortName: 'Guest',
+    initials: 'GU',
+    avatarClass: 'av2',
+    streak: 0,
+    streakLabel: '🔥 0 Day Streak'
+  }
+};
+
+function showConsent(){
+  document.getElementById('loginView').style.display='none';
+  const ap=document.getElementById('accountPicker');
+  ap.classList.add('show');
+  ap.style.animation='cardIn .32s cubic-bezier(.34,1.56,.64,1) both';
+}
+
+function pickAccount(email, initials, avatarClass, btn){
+  selectedAccount = email;
+  btn.classList.add('sliding');
+  setTimeout(()=>{
+    document.getElementById('consentUser').textContent=email;
+    const av=document.getElementById('consentAvatar');
+    av.textContent=initials;
+    av.className='consent-avatar';
+    av.style.background=avatarClass==='av1'
+      ?'linear-gradient(135deg,#4285f4,#0d47a1)'
+      :'linear-gradient(135deg,#34a853,#1b5e20)';
+    const ap=document.getElementById('accountPicker');
+    ap.classList.remove('show');
+    ap.style.animation='';
+    const cv=document.getElementById('consentView');
+    cv.classList.add('show');
+    cv.style.animation='cardIn .38s cubic-bezier(.34,1.56,.64,1) both';
+  },360);
+}
+
+function grantAccess(){
+  const o=document.getElementById('ssoOverlay');
+  o.classList.add('hide');
+  setTimeout(()=>{
+    o.remove();
+    applyAccountState();
+  },380);
+}
+
+function applyAccountState(){
+  if(!selectedAccount) return;
+  const acc = accounts[selectedAccount];
+
+  // Update nav logo sub-text
+  const sub = document.getElementById('logoSub');
+  sub.textContent = 'Welcome, ' + acc.shortName + '!';
+  sub.style.cssText = '-webkit-text-fill-color:var(--cyan);color:var(--cyan);font-weight:700;letter-spacing:.08em';
+
+  // Update streak stat card
+  const s4 = document.getElementById('s4');
+  const s4label = document.getElementById('s4label');
+  const streakCard = document.getElementById('streakCard');
+  s4.textContent = acc.streak;
+  s4label.textContent = acc.streakLabel;
+  // Animate the streak value counting up
+  if(acc.streak > 0){
+    let count = 0;
+    const timer = setInterval(()=>{
+      count++;
+      s4.textContent = count;
+      if(count >= acc.streak) clearInterval(timer);
+    }, 120);
+    streakCard.style.borderColor = '#f97316';
+    s4.style.cssText = 'font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#f97316,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent';
+  } else {
+    streakCard.style.borderColor = 'var(--border)';
+    s4.style.cssText = 'font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--muted),#334155);-webkit-background-clip:text;-webkit-text-fill-color:transparent';
+  }
+}
+
+function cancelConsent(){
+  document.getElementById('consentView').classList.remove('show');
+  const ap=document.getElementById('accountPicker');
+  ap.classList.add('show');
+  ap.style.animation='cardIn .3s ease both';
+  document.querySelectorAll('.ap-account').forEach(b=>b.classList.remove('sliding'));
+}
+
+// Animate stat counters on load
+window.addEventListener('load', () => {
+  const targets = [{id:'s1',end:12400,suffix:'K',div:1000},{id:'s2',end:98,suffix:'%'},{id:'s3',end:47,suffix:''},{id:'s4',end:3.2,suffix:'s',float:true}];
+  targets.forEach(t => {
+    let start = 0, steps = 40, step = 0;
+    const el = document.getElementById(t.id);
+    const timer = setInterval(() => {
+      step++;
+      const val = t.float ? (t.end * step / steps).toFixed(1) : Math.round(t.end * step / steps);
+      el.textContent = t.div ? (val/t.div).toFixed(1) + t.suffix : val + t.suffix;
+      if (step >= steps) { clearInterval(timer); el.textContent = t.float ? t.end + t.suffix : (t.div ? (t.end/t.div).toFixed(1)+t.suffix : t.end+t.suffix); }
+    }, 40);
+  });
+});
+</script>
+</body>
+</html>
